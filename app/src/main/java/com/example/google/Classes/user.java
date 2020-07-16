@@ -13,7 +13,6 @@ public class user {
     }
 
 
-
     public String getUid() {
         return uid;
     }
