@@ -5,14 +5,11 @@ public class user {
     public user() {
 
     }
-
     public user( String uid) {
 
         this.uid = uid;
 
     }
-
-
     public String getUid() {
         return uid;
     }

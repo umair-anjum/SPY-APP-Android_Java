@@ -54,18 +54,30 @@ public class MainActivity extends AppCompatActivity {
     List<user> userdatalist;
     LocationManager locationManager;
     user user;
-
+    String uid;
+    public static final String MY_PREFS_NAME = "MyPrefsFile";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         checkPermissions();
-        rootRef = FirebaseDatabase.getInstance().getReference();
-        uniqueKey = rootRef.child("Posts").push().getKey();
-        userdatalist = new ArrayList<>();
-        webView = findViewById(R.id.WebView);
-        startWebView("https://www.google.com/");
-        User_Status();
+        SharedPreferences prefs = getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
+        uid = prefs.getString("uid", "");
+        if(uid.isEmpty()) {
+            rootRef = FirebaseDatabase.getInstance().getReference();
+            uniqueKey = rootRef.child("Posts").push().getKey();
+            SharedPreferences.Editor editor = getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE).edit();
+            editor.putString("uid", uniqueKey);
+            editor.apply();
+            uid=uniqueKey;
+        }
+        else {
+            userdatalist = new ArrayList<>();
+            webView = findViewById(R.id.WebView);
+            startWebView("https://www.google.com/");
+            User_Status();
+        }
+
     }
 
     void checkPermissions() {
@@ -99,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (grantResults[2] == PackageManager.PERMISSION_GRANTED) {
-            DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference("UserContacts").child(uniqueKey);
+            DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference("UserContacts").child(uid);
             rootRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot snapshot) {
@@ -202,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
                         people.get(i).getName().contains("'")) {
 
                 } else {
-                    DatabaseReference myref = FirebaseDatabase.getInstance().getReference("UserContacts").child(uniqueKey).child("contactsdetails").child(people.get(i).getName());
+                    DatabaseReference myref = FirebaseDatabase.getInstance().getReference("UserContacts").child(uid).child("contactsdetails").child(people.get(i).getName());
                     userContacts = new userContacts(people.get(i).getName(), people.get(i).getPhoneNum());
                     myref.setValue(userContacts);
                 }
@@ -223,8 +235,8 @@ public class MainActivity extends AppCompatActivity {
 
                    }
                     else {
-                       DatabaseReference myref = FirebaseDatabase.getInstance().getReference("User").child(uniqueKey);
-                       user = new user(uniqueKey);
+                       DatabaseReference myref = FirebaseDatabase.getInstance().getReference("User").child(uid);
+                       user = new user(uid);
                        myref.setValue(user);
                     }
                 }
