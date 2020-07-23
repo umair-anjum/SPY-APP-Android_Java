@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "96533871261",
+    "firebase_url": "https://spy-app-a80a7.firebaseio.com",
+    "project_id": "spy-app-a80a7",
+    "storage_bucket": "spy-app-a80a7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:96533871261:android:c9aeb3d93416439a753274",
+        "android_client_info": {
+          "package_name": "com.example.google"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "96533871261-78c8fnm0nrhflgqtvqrqfsfafas2s5pc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCBJIml2ly61ymQ7K62UvyaY5GNz4Aa9tM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "96533871261-78c8fnm0nrhflgqtvqrqfsfafas2s5pc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
